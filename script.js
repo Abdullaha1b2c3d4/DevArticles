@@ -5,14 +5,19 @@ function parseFrontmatter(md) {
     const match = md.match(/^---\n([\s\S]*?)\n---/);
     if (!match) return {};
 
-    const yaml = match[1];
-    const lines = yaml.split('\n');
+    const lines = match[1].split('\n');
     const data = {};
 
     lines.forEach(line => {
-        const [key, ...rest] = line.split(':');
-        if (!key) return;
-        data[key.trim()] = rest.join(':').trim().replace(/^"|"$/g, '');
+        const index = line.indexOf(':');
+        if (index === -1) return;
+
+        const key = line.slice(0, index).trim();
+        let value = line.slice(index + 1).trim();
+
+        value = value.replace(/^"|"$/g, '');
+
+        data[key] = value;
     });
 
     return data;
@@ -27,22 +32,39 @@ const repo = "Abdullaha1b2c3d4/DevArticles";
 // LOAD ARTICLES
 // ===============================
 async function loadArticles() {
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
-    const files = await res.json();
+    try {
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
 
-    const articles = [];
+        if (!res.ok) throw new Error("GitHub API failed");
 
-    for (const file of files) {
-        if (!file.name.endsWith(".md")) continue;
+        const files = await res.json();
 
-        const raw = await fetch(file.download_url);
-        const text = await raw.text();
-        const data = parseFrontmatter(text);
+        if (!Array.isArray(files)) {
+            console.error("Not an array:", files);
+            return [];
+        }
 
-        articles.push(data);
+        const articles = [];
+
+        for (const file of files) {
+            if (!file.name.endsWith(".md")) continue;
+
+            const raw = await fetch(file.download_url);
+            const text = await raw.text();
+            const data = parseFrontmatter(text);
+
+            // 🛑 Skip broken data
+            if (!data.title || !data.image) continue;
+
+            articles.push(data);
+        }
+
+        return articles;
+
+    } catch (err) {
+        console.error("Error loading articles:", err);
+        return [];
     }
-
-    return articles;
 }
 
 // ===============================
