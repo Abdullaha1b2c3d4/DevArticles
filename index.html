@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechPulse - Your ultimate resource for AI Tools, Web Development tutorials, and Tech news. Stay ahead with the latest in technology.">
+    <meta name="keywords" content="AI tools, web development, tech news, programming, artificial intelligence, coding tutorials">
+    <title>TechPulse — AI Tools, Web Development & Tech</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+</head>
+<body>
+
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                Tech<span>Pulse</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#articles">Articles</a></li>
+                <li><a href="#tools">AI Tools</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="search-toggle" id="searchToggle" aria-label="Search"><i class="fas fa-search"></i></button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-box">
+            <input type="text" placeholder="Search articles, tools, tutorials..." autofocus>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-bg">
+            <div class="grid-overlay"></div>
+        </div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    Exploring the Future of Tech
+                </div>
+                <h1>
+                    Discover <span class="gradient-text">AI Tools</span>,
+                    Web Dev & Tech Insights
+                </h1>
+                <p>Your go-to resource for the latest AI tools, web development tutorials, and cutting-edge technology news. Learn, build, and innovate with TechPulse.</p>
+                <div class="hero-buttons">
+                    <a href="#articles" class="btn btn-primary">
+                        <i class="fas fa-newspaper"></i> Read Articles
+                    </a>
+                    <a href="#tools" class="btn btn-outline">
+                        <i class="fas fa-robot"></i> Explore AI Tools
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <h3>500+</h3>
+                        <p>Articles Published</p>
+                    </div>
+                    <div class="stat">
+                        <h3>150+</h3>
+                        <p>AI Tools Reviewed</p>
+                    </div>
+                    <div class="stat">
+                        <h3>50K+</h3>
+                        <p>Monthly Readers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="code-window">
+                    <div class="code-header">
+                        <div class="code-dot red"></div>
+                        <div class="code-dot yellow"></div>
+                        <div class="code-dot green"></div>
+                        <span>techpulse.js</span>
+                    </div>
+                    <div class="code-body">
+                        <div class="code-line"><span class="line-num">1</span><span class="code-comment">// Welcome to TechPulse</span></div>
+                        <div class="code-line"><span class="line-num">2</span><span class="code-keyword">const</span> <span class="code-var">topics</span> <span class="code-bracket">= [</span></div>
+                        <div class="code-line"><span class="line-num">3</span>&nbsp;&nbsp;<span class="code-string">"AI Tools"</span><span class="code-bracket">,</span></div>
+                        <div class="code-line"><span class="line-num">4</span>&nbsp;&nbsp;<span class="code-string">"Web Development"</span><span class="code-bracket">,</span></div>
+                        <div class="code-line"><span class="line-num">5</span>&nbsp;&nbsp;<span class="code-string">"Tech Innovation"</span></div>
+                        <div class="code-line"><span class="line-num">6</span><span class="code-bracket">];</span></div>
+                        <div class="code-line"><span class="line-num">7</span></div>
+                        <div class="code-line"><span class="line-num">8</span><span class="code-keyword">async function</span> <span class="code-func">explore</span><span class="code-bracket">() {</span></div>
+                        <div class="code-line"><span class="line-num">9</span>&nbsp;&nbsp;<span class="code-keyword">for</span> <span class="code-bracket">(</span><span class="code-keyword">const</span> <span class="code-var">t</span> <span class="code-keyword">of</span> <span class="code-var">topics</span><span class="code-bracket">) {</span></div>
+                        <div class="code-line"><span class="line-num">10</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> <span class="code-func">learn</span><span class="code-bracket">(</span><span class="code-var">t</span><span class="code-bracket">);</span></div>
+                        <div class="code-line"><span class="line-num">11</span>&nbsp;&nbsp;<span class="code-bracket">}</span></div>
+                        <div class="code-line"><span class="line-num">12</span><span class="code-bracket">}</span></div>
+                        <div class="code-line"><span class="line-num">13</span></div>
+                        <div class="code-line"><span class="line-num">14</span><span class="code-func">explore</span><span class="code-bracket">();</span> <span class="typing-cursor"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ad Banner -->
+    <div class="ad-banner">
+        <div class="ad-placeholder">
+            <i class="fas fa-ad"></i>
+            Advertisement — Your Ad Here (728x90 Leaderboard)
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <section id="categories">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <div class="section-tag"><i class="fas fa-layer-group"></i> Categories</div>
+                <h2>Explore Our Core Topics</h2>
+                <p>Dive deep into the three pillars of modern technology that shape how we build, create, and innovate.</p>
+            </div>
+            <div class="categories-grid">
+                <div class="category-card fade-in">
+                    <div class="category-icon"><i class="fas fa-robot"></i></div>
+                    <h3>AI Tools & Reviews</h3>
+                    <p>In-depth reviews and comparisons of the latest AI tools for productivity, creativity, and development.</p>
+                    <span class="category-count">65+ Articles</span>
+                </div>
+                <div class="category-card fade-in">
+                    <div class="category-icon"><i class="fas fa-code"></i></div>
+                    <h3>Web Development</h3>
+                    <p>Tutorials, frameworks, best practices, and the latest trends in frontend and backend development.</p>
+                    <span class="category-count">120+ Tutorials</span>
+                </div>
+                <div class="category-card fade-in">
+                    <div class="category-icon"><i class="fas fa-microchip"></i></div>
+                    <h3>Tech & Innovation</h3>
+                    <p>Breaking news, gadget reviews, startup stories, and emerging technologies reshaping our world.</p>
+                    <span class="category-count">90+ Stories</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Articles (Dynamic) -->
+    <section id="articles">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <div class="section-tag"><i class="fas fa-fire"></i> Featured Articles</div>
+                <h2>Latest from the Blog</h2>
+                <p>Stay up-to-date with our freshest content on AI, web development, and technology.</p>
+            </div>
+            <div class="content-layout">
+                <div>
+                    <div class="posts-grid" id="articlesGrid"></div>
+                    <div style="text-align:center; margin-top:40px;" class="fade-in">
+                        <a href="#" class="btn btn-outline"><i class="fas fa-th-large"></i> View All Articles</a>
+                    </div>
+                </div>
+                <aside class="sidebar">
+                    <!-- Ad Spot -->
+                    <div class="ad-placeholder" style="margin-bottom:24px; border-radius: var(--radius);">
+                        <div><i class="fas fa-ad"></i><br>Sidebar Ad (300x250)</div>
+                    </div>
+                    <!-- Trending -->
+                    <div class="sidebar-widget">
+                        <h3><i class="fas fa-chart-line"></i> Trending Now</h3>
+                        <ul class="trending-list" id="trendingList"></ul>
+                    </div>
+                    <!-- Tags -->
+                    <div class="sidebar-widget">
+                        <h3><i class="fas fa-tags"></i> Popular Tags</h3>
+                        <div class="tag-cloud" id="tagCloud"></div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ad Banner -->
+    <div class="ad-banner">
+        <div class="ad-placeholder">
+            <i class="fas fa-ad"></i>
+            Advertisement — In-Article Ad (728x90)
+        </div>
+    </div>
+
+    <!-- AI Tools Section (Dynamic) -->
+    <section id="tools">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <div class="section-tag"><i class="fas fa-wand-magic-sparkles"></i> AI Tools Directory</div>
+                <h2>Best AI Tools for Creators & Developers</h2>
+                <p>Curated collection of the most powerful AI tools to supercharge your workflow.</p>
+            </div>
+            <div class="tools-grid" id="toolsGrid"></div>
+            <div style="text-align:center; margin-top:40px;" class="fade-in">
+                <a href="#" class="btn btn-primary"><i class="fas fa-grid-2"></i> Browse All AI Tools</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter" id="newsletter">
+        <div class="section-container">
+            <div class="newsletter-container fade-in">
+                <div class="section-tag"><i class="fas fa-envelope"></i> Newsletter</div>
+                <h2>Stay Ahead of the Curve</h2>
+                <p>Get weekly curated content on AI tools, web development tips, and tech news delivered straight to your inbox. Join 10,000+ subscribers.</p>
+                <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+                    <input type="email" placeholder="Enter your email address" required>
+                    <button type="submit">Subscribe <i class="fas fa-paper-plane"></i></button>
+                </form>
+                <p class="newsletter-note"><i class="fas fa-lock"></i> No spam, ever. Unsubscribe anytime.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="section-container">
+            <div class="about-grid">
+                <div class="about-content fade-in">
+                    <div class="section-tag"><i class="fas fa-heart"></i> About Us</div>
+                    <h2>We're Passionate About Technology</h2>
+                    <p>TechPulse was founded in 2023 with a simple mission: make technology accessible to everyone. We believe that understanding AI, web development, and emerging tech shouldn't require a PhD.</p>
+                    <p>Our team of experienced developers, tech writers, and AI enthusiasts work tirelessly to bring you accurate, in-depth, and practical content that you can actually use.</p>
+                    <ul class="about-features">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Expert Writers</strong>
+                                <span>Content created by industry professionals with years of hands-on experience.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Unbiased Reviews</strong>
+                                <span>Honest, thorough tool reviews — we test everything ourselves before recommending.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Community Driven</strong>
+                                <span>Built by the community, for the community. Your feedback shapes our content.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="about-image fade-in">
+                    <div class="about-stat-card">
+                        <i class="fas fa-newspaper"></i>
+                        <h4>500+</h4>
+                        <p>Articles Written</p>
+                    </div>
+                    <div class="about-stat-card">
+                        <i class="fas fa-users"></i>
+                        <h4>50K+</h4>
+                        <p>Monthly Readers</p>
+                    </div>
+                    <div class="about-stat-card">
+                        <i class="fas fa-robot"></i>
+                        <h4>150+</h4>
+                        <p>Tools Reviewed</p>
+                    </div>
+                    <div class="about-stat-card">
+                        <i class="fas fa-globe"></i>
+                        <h4>120+</h4>
+                        <p>Countries Reached</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ad Banner -->
+    <div class="ad-banner">
+        <div class="ad-placeholder">
+            <i class="fas fa-ad"></i>
+            Advertisement — Before Contact Section (728x90)
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="section-container">
+            <div class="section-header fade-in">
+                <div class="section-tag"><i class="fas fa-envelope"></i> Get in Touch</div>
+                <h2>Contact Us</h2>
+                <p>Have questions, suggestions, or want to collaborate? We'd love to hear from you.</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info fade-in">
+                    <h2>Let's Connect</h2>
+                    <p>Whether you have a question about our content, want to submit a guest post, or explore partnership opportunities — our team is ready to help.</p>
+                    <div class="contact-item">
+                        <div class="contact-item-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <h4>Email Us</h4>
+                            <p>hello@techpulse.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h4>Location</h4>
+                            <p>San Francisco, CA, USA</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <h4>Response Time</h4>
+                            <p>Within 24 hours</p>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div class="contact-form fade-in">
+                    <form onsubmit="handleContact(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" placeholder="John" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" placeholder="Doe" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select required>
+                                <option value="">Select a topic...</option>
+                                <option>General Inquiry</option>
+                                <option>Guest Post</option>
+                                <option>Partnership</option>
+                                <option>Bug Report</option>
+                                <option>Feedback</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea placeholder="Tell us what's on your mind..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                    Tech<span>Pulse</span>
+                </a>
+                <p>Your ultimate resource for AI tools, web development tutorials, and the latest in technology. Empowering creators and developers since 2023.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#articles">Blog</a></li>
+                    <li><a href="#tools">AI Tools</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a href="#">AI Tools & Reviews</a></li>
+                    <li><a href="#">Web Development</a></li>
+                    <li><a href="#">Tech News</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Product Reviews</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#" onclick="showPage('privacy')">Privacy Policy</a></li>
+                    <li><a href="#" onclick="showPage('terms')">Terms of Service</a></li>
+                    <li><a href="#" onclick="showPage('disclaimer')">Disclaimer</a></li>
+                    <li><a href="#contact">Advertise With Us</a></li>
+                    <li><a href="#newsletter">Newsletter</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 TechPulse. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="#" onclick="showPage('privacy')">Privacy</a>
+                <a href="#" onclick="showPage('terms')">Terms</a>
+                <a href="#" onclick="showPage('disclaimer')">Disclaimer</a>
+                <a href="#">Sitemap</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Cookie Banner -->
+    <div class="cookie-banner" id="cookieBanner">
+        <p>🍪 We use cookies to enhance your experience. By continuing, you agree to our <a href="#" onclick="showPage('privacy')">Privacy Policy</a>.</p>
+        <button class="cookie-btn" onclick="acceptCookies()">Accept All</button>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="pageModal" style="display:none; position:fixed; inset:0; z-index:5000; background:var(--bg-primary); overflow-y:auto;">
+        <div class="page-section">
+            <div class="page-content">
+                <button onclick="closePageModal()" style="background:none; border:1px solid var(--border); color:var(--text-primary); padding:8px 16px; border-radius:var(--radius-sm); cursor:pointer; font-family:inherit; margin-bottom:24px; font-size:0.9rem;">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </button>
+                <div id="pageModalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

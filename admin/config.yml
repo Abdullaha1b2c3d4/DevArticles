@@ -1,0 +1,67 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets/images"
+public_folder: "/assets/images"
+
+site_url: https://techarticles.netlify.app
+
+collections:
+
+  # ===== ARTICLES =====
+  - name: "articles"
+    label: "Articles"
+    folder: "content/articles"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "ID", name: "id", widget: "number" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Category", name: "category", widget: "select", options: ["AI Tools", "Web Dev", "Tech"] }
+      - { label: "Category Class", name: "categoryClass", widget: "string" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Read Time", name: "readTime", widget: "string" }
+      - { label: "URL", name: "url", widget: "string", default: "#" }
+      - { label: "Views", name: "views", widget: "number" }
+
+  # ===== AI TOOLS =====
+  - name: "tools"
+    label: "AI Tools"
+    folder: "content/tools"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "ID", name: "id", widget: "number" }
+      - { label: "Tool Name", name: "name", widget: "string" }
+      - { label: "Company", name: "company", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Icon Class", name: "icon", widget: "string" }
+      - { label: "Icon Background", name: "iconBg", widget: "string" }
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+      - { label: "Rating", name: "rating", widget: "number", value_type: "float" }
+      - { label: "Price Type", name: "priceType", widget: "select", options: ["free", "freemium", "paid"] }
+      - { label: "Price Label", name: "priceLabel", widget: "string" }
+
+  # ===== TRENDING TOPICS =====
+  - name: "trending"
+    label: "Trending Topics"
+    folder: "content/trending"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Views", name: "views", widget: "string" }
+
+  # ===== TAGS =====
+  - name: "tags"
+    label: "Popular Tags"
+    folder: "content/tags"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tag Name", name: "name", widget: "string" }
