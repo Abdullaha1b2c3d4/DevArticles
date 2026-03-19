@@ -223,16 +223,18 @@ document.addEventListener('DOMContentLoaded', () => {
 const navbar = document.getElementById('navbar');
 const backToTop = document.getElementById('backToTop');
 
-window.addEventListener('scroll', () => {
-    if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
-    if (backToTop) backToTop.classList.toggle('visible', window.scrollY > 500);
-});
-
-if (backToTop) {
-    backToTop.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+// Intersection Observer for fade-in animations
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
     });
-}
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => {
+    observer.observe(el);
+});
 
 // ===============================
 // MOBILE MENU
