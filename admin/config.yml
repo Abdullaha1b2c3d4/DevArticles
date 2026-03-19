@@ -1,5 +1,6 @@
 backend:
   name: git-gateway
+  repo: Abdullaha1b2c3d4/DevArticles
   branch: main
 
 media_folder: "assets/images"
