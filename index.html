@@ -6,6 +6,7 @@
     <meta name="description" content="TechPulse - Your ultimate resource for AI Tools, Web Development tutorials, and Tech news. Stay ahead with the latest in technology.">
     <meta name="keywords" content="AI tools, web development, tech news, programming, artificial intelligence, coding tutorials">
     <title>TechPulse — AI Tools, Web Development & Tech</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -456,7 +457,17 @@
             </div>
         </div>
     </div>
-
+    <script>
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {
+      if (!user) {
+        window.netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/";
+        });
+      }
+    });
+  }
+</script>
     <script src="script.js"></script>
 </body>
 </html>
