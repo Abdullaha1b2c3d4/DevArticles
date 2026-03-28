@@ -1,4 +1,29 @@
 // ===============================
+// CACHE HELPER FUNCTIONS
+// ===============================
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+
+function getCachedData(key) {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    
+    const data = JSON.parse(cached);
+    if (Date.now() - data.timestamp > CACHE_DURATION) {
+        localStorage.removeItem(key);
+        return null;
+    }
+    
+    return data.value;
+}
+
+function setCachedData(key, value) {
+    localStorage.setItem(key, JSON.stringify({
+        timestamp: Date.now(),
+        value: value
+    }));
+}
+
+// ===============================
 // MARKDOWN PARSER
 // ===============================
 function parseFrontmatter(md) {
@@ -14,9 +39,7 @@ function parseFrontmatter(md) {
 
         const key = line.slice(0, index).trim();
         let value = line.slice(index + 1).trim();
-
         value = value.replace(/^"|"$/g, '');
-
         data[key] = value;
     });
 
@@ -29,15 +52,24 @@ function parseFrontmatter(md) {
 const repo = "Abdullaha1b2c3d4/DevArticles";
 
 // ===============================
-// LOAD ARTICLES
+// LOAD ARTICLES (WITH CACHE)
 // ===============================
 async function loadArticles() {
     try {
+        console.log('=== DEBUG: Starting to fetch articles ===');
+        
         const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
-
-        if (!res.ok) throw new Error("GitHub API failed");
+        
+        console.log('GitHub API Response Status:', res.status);
+        
+        if (!res.ok) {
+            console.error('GitHub API failed with status:', res.status);
+            throw new Error("GitHub API failed");
+        }
 
         const files = await res.json();
+        console.log('Files found:', files.length);
+        console.log('File names:', files.map(f => f.name));
 
         if (!Array.isArray(files)) {
             console.error("Not an array:", files);
@@ -47,22 +79,163 @@ async function loadArticles() {
         const articles = [];
 
         for (const file of files) {
+            if (!file.name.endsWith(".md")) {
+                console.log(`Skipping non-md file: ${file.name}`);
+                continue;
+            }
+
+            console.log(`\n--- Processing: ${file.name} ---`);
+            
+            const raw = await fetch(file.download_url);
+            const text = await raw.text();
+            console.log(`File content length: ${text.length} characters`);
+            console.log(`First 200 chars: ${text.substring(0, 200)}`);
+            
+            const data = parseFrontmatter(text);
+            console.log('Parsed frontmatter:', data);
+
+            if (!data.title) {
+                console.warn(`⚠️ Skipping: No title in ${file.name}`);
+                continue;
+            }
+            
+            if (!data.image) {
+                console.warn(`⚠️ Warning: No image in ${file.name}`);
+            }
+
+            articles.push(data);
+            console.log(`✅ Added article: ${data.title}`);
+        }
+
+        console.log(`\n=== Total articles loaded: ${articles.length} ===`);
+        return articles;
+
+    } catch (err) {
+        console.error("Error loading articles:", err);
+        return [];
+    }
+}
+
+// ===============================
+// LOAD TOOLS (WITH CACHE)
+// ===============================
+async function loadTools() {
+    const cached = getCachedData('tools');
+    if (cached) {
+        console.log('Loading tools from cache');
+        return cached;
+    }
+    
+    try {
+        console.log('Fetching tools from GitHub API');
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/tools`);
+        const files = await res.json();
+
+        const tools = [];
+
+        for (const file of files) {
             if (!file.name.endsWith(".md")) continue;
 
             const raw = await fetch(file.download_url);
             const text = await raw.text();
             const data = parseFrontmatter(text);
 
-            // 🛑 Skip broken data
-            if (!data.title || !data.image) continue;
+            if (typeof data.tags === "string") {
+                data.tags = data.tags.replace('[', '').replace(']', '').split(',');
+            }
 
-            articles.push(data);
+            tools.push(data);
         }
-
-        return articles;
-
+        
+        setCachedData('tools', tools);
+        return tools;
+        
     } catch (err) {
-        console.error("Error loading articles:", err);
+        console.error("Error loading tools:", err);
+        const fallbackCache = localStorage.getItem('tools');
+        if (fallbackCache) {
+            return JSON.parse(fallbackCache).value;
+        }
+        return [];
+    }
+}
+
+// ===============================
+// LOAD TRENDING (WITH CACHE)
+// ===============================
+async function loadTrending() {
+    const cached = getCachedData('trending');
+    if (cached) {
+        console.log('Loading trending from cache');
+        return cached;
+    }
+    
+    try {
+        console.log('Fetching trending from GitHub API');
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/trending`);
+        const files = await res.json();
+
+        const topics = [];
+
+        for (const file of files) {
+            if (!file.name.endsWith(".md")) continue;
+
+            const raw = await fetch(file.download_url);
+            const text = await raw.text();
+            const data = parseFrontmatter(text);
+
+            topics.push(data);
+        }
+        
+        setCachedData('trending', topics);
+        return topics;
+        
+    } catch (err) {
+        console.error("Error loading trending:", err);
+        const fallbackCache = localStorage.getItem('trending');
+        if (fallbackCache) {
+            return JSON.parse(fallbackCache).value;
+        }
+        return [];
+    }
+}
+
+// ===============================
+// LOAD TAGS (WITH CACHE)
+// ===============================
+async function loadTags() {
+    const cached = getCachedData('tags');
+    if (cached) {
+        console.log('Loading tags from cache');
+        return cached;
+    }
+    
+    try {
+        console.log('Fetching tags from GitHub API');
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/tags`);
+        const files = await res.json();
+
+        const tags = [];
+
+        for (const file of files) {
+            if (!file.name.endsWith(".md")) continue;
+
+            const raw = await fetch(file.download_url);
+            const text = await raw.text();
+            const data = parseFrontmatter(text);
+
+            tags.push(data.name);
+        }
+        
+        setCachedData('tags', tags);
+        return tags;
+        
+    } catch (err) {
+        console.error("Error loading tags:", err);
+        const fallbackCache = localStorage.getItem('tags');
+        if (fallbackCache) {
+            return JSON.parse(fallbackCache).value;
+        }
         return [];
     }
 }
@@ -75,6 +248,17 @@ async function renderArticles() {
     if (!grid) return;
 
     const articles = await loadArticles();
+
+    if (articles.length === 0) {
+        grid.innerHTML = `
+            <div style="text-align: center; padding: 60px; grid-column: 1/-1;">
+                <i class="fas fa-newspaper" style="font-size: 3rem; opacity: 0.5; margin-bottom: 20px; display: block;"></i>
+                <h3>No articles found</h3>
+                <p style="color: var(--text-muted);">Check back later for new content!</p>
+            </div>
+        `;
+        return;
+    }
 
     grid.innerHTML = articles.map(article => `
         <div class="post-card">
@@ -96,32 +280,6 @@ async function renderArticles() {
 }
 
 // ===============================
-// LOAD TOOLS
-// ===============================
-async function loadTools() {
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/tools`);
-    const files = await res.json();
-
-    const tools = [];
-
-    for (const file of files) {
-        if (!file.name.endsWith(".md")) continue;
-
-        const raw = await fetch(file.download_url);
-        const text = await raw.text();
-        const data = parseFrontmatter(text);
-
-        if (typeof data.tags === "string") {
-            data.tags = data.tags.replace('[', '').replace(']', '').split(',');
-        }
-
-        tools.push(data);
-    }
-
-    return tools;
-}
-
-// ===============================
 // RENDER TOOLS
 // ===============================
 async function renderTools() {
@@ -129,6 +287,17 @@ async function renderTools() {
     if (!grid) return;
 
     const tools = await loadTools();
+
+    if (tools.length === 0) {
+        grid.innerHTML = `
+            <div style="text-align: center; padding: 60px; grid-column: 1/-1;">
+                <i class="fas fa-tools" style="font-size: 3rem; opacity: 0.5; margin-bottom: 20px; display: block;"></i>
+                <h3>No tools found</h3>
+                <p style="color: var(--text-muted);">Check back later for new AI tools!</p>
+            </div>
+        `;
+        return;
+    }
 
     grid.innerHTML = tools.map(tool => `
         <div class="tool-card">
@@ -154,28 +323,6 @@ async function renderTools() {
 }
 
 // ===============================
-// LOAD TRENDING
-// ===============================
-async function loadTrending() {
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/trending`);
-    const files = await res.json();
-
-    const topics = [];
-
-    for (const file of files) {
-        if (!file.name.endsWith(".md")) continue;
-
-        const raw = await fetch(file.download_url);
-        const text = await raw.text();
-        const data = parseFrontmatter(text);
-
-        topics.push(data);
-    }
-
-    return topics;
-}
-
-// ===============================
 // RENDER TRENDING
 // ===============================
 async function renderTrending() {
@@ -183,6 +330,11 @@ async function renderTrending() {
     if (!list) return;
 
     const topics = await loadTrending();
+
+    if (topics.length === 0) {
+        list.innerHTML = '<li style="padding: 12px 0; color: var(--text-muted);">No trending topics</li>';
+        return;
+    }
 
     list.innerHTML = topics.map((t, i) => `
         <li class="trending-item">
@@ -196,28 +348,6 @@ async function renderTrending() {
 }
 
 // ===============================
-// LOAD TAGS
-// ===============================
-async function loadTags() {
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/tags`);
-    const files = await res.json();
-
-    const tags = [];
-
-    for (const file of files) {
-        if (!file.name.endsWith(".md")) continue;
-
-        const raw = await fetch(file.download_url);
-        const text = await raw.text();
-        const data = parseFrontmatter(text);
-
-        tags.push(data.name);
-    }
-
-    return tags;
-}
-
-// ===============================
 // RENDER TAG CLOUD
 // ===============================
 async function renderTagCloud() {
@@ -226,7 +356,12 @@ async function renderTagCloud() {
 
     const tags = await loadTags();
 
-    cloud.innerHTML = tags.map(tag => `<a href="#">${tag}</a>`).join('');
+    if (tags.length === 0) {
+        cloud.innerHTML = '<span style="color: var(--text-muted);">No tags available</span>';
+        return;
+    }
+
+    cloud.innerHTML = tags.map(tag => `<a href="category.html?cat=${encodeURIComponent(tag)}">${tag}</a>`).join('');
 }
 
 // ===============================
@@ -240,12 +375,31 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===============================
+// MANUAL REFRESH FUNCTION
+// ===============================
+async function refreshContent() {
+    localStorage.removeItem('articles');
+    localStorage.removeItem('tools');
+    localStorage.removeItem('trending');
+    localStorage.removeItem('tags');
+    
+    const grid = document.getElementById('articlesGrid');
+    if (grid) {
+        grid.innerHTML = '<div class="loading-spinner" style="text-align: center; padding: 60px;"><div class="loader"></div><p style="margin-top: 20px;">Refreshing articles...</p></div>';
+    }
+    
+    await renderArticles();
+    await renderTools();
+    await renderTrending();
+    await renderTagCloud();
+}
+
+// ===============================
 // NAVBAR & SCROLL
 // ===============================
 const navbar = document.getElementById('navbar');
 const backToTop = document.getElementById('backToTop');
 
-// Intersection Observer for fade-in animations
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -357,19 +511,18 @@ function updateActiveLink() {
     });
 }
 
-// Update active link on scroll (only if sections exist)
 if (mainSections.length > 0) {
     window.addEventListener('scroll', updateActiveLink);
     updateActiveLink();
 }
 
-// Update active link when clicking nav links
 navBarLinks.forEach(link => {
     link.addEventListener('click', function() {
         navBarLinks.forEach(l => l.classList.remove('active'));
         this.classList.add('active');
     });
 });
+
 // ===============================
 // CATEGORY CARD CLICK HANDLER
 // ===============================
@@ -380,8 +533,6 @@ categoryCards.forEach((card, index) => {
     
     card.addEventListener('click', () => {
         let category = '';
-        
-        // Determine which category was clicked based on index or title
         const title = card.querySelector('h3')?.innerText || '';
         
         if (title.includes('AI Tools') || index === 0) {
