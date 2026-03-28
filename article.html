@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechPulse - Read full articles on AI Tools, Web Development, and Tech">
+    <title>TechPulse — Article</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Article Page Specific Styles */
+        .article-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 120px 2rem 80px;
+        }
+
+        .article-header {
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .article-category {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--accent-glow);
+            color: var(--accent-light);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .article-meta i {
+            margin-right: 6px;
+            color: var(--accent-light);
+        }
+
+        .featured-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .article-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+            display: inline-block;
+        }
+
+        .article-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 30px 0 15px;
+        }
+
+        .article-content p {
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+        }
+
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-sm);
+            margin: 30px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--accent);
+            padding: 20px 30px;
+            margin: 30px 0;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .article-content code {
+            background: var(--bg-card);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .article-content pre {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            margin: 30px 0;
+            border: 1px solid var(--border);
+        }
+
+        .article-content pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-secondary);
+        }
+
+        .article-content ul, 
+        .article-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+            color: var(--text-secondary);
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content a {
+            color: var(--accent-light);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .article-content a:hover {
+            border-bottom-color: var(--accent);
+        }
+
+        .article-footer {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        .article-tags {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .article-tags span {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tag {
+            padding: 6px 14px;
+            background: var(--accent-glow);
+            color: var(--accent-light);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .tag:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .author-bio {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            margin: 40px 0;
+            border: 1px solid var(--border);
+        }
+
+        .author-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .author-info h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .author-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .share-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .share-btn.twitter:hover {
+            background: #1DA1F2;
+            border-color: #1DA1F2;
+            color: white;
+        }
+
+        .share-btn.facebook:hover {
+            background: #4267B2;
+            border-color: #4267B2;
+            color: white;
+        }
+
+        .share-btn.linkedin:hover {
+            background: #0077B5;
+            border-color: #0077B5;
+            color: white;
+        }
+
+        .related-articles {
+            margin-top: 60px;
+        }
+
+        .related-articles h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .related-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .related-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow);
+        }
+
+        .related-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .related-card-content {
+            padding: 20px;
+        }
+
+        .related-card-content h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .related-card-content p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 60px;
+            color: var(--danger);
+        }
+
+        .back-to-blog {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .back-to-blog:hover {
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .author-bio {
+                flex-direction: column;
+                text-align: center;
+            }
+            .article-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                Articles<span>Web</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#categories">Categories</a></li>
+                <li><a href="index.html#articles">Articles</a></li>
+                <li><a href="index.html#tools">AI Tools</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="search-toggle" id="searchToggle" aria-label="Search"><i class="fas fa-search"></i></button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-box">
+            <input type="text" placeholder="Search articles, tools, tutorials..." autofocus>
+        </div>
+    </div>
+
+    <!-- Article Content -->
+    <main>
+        <div class="article-container" id="articleContainer">
+            <a href="index.html#articles" class="back-to-blog">
+                <i class="fas fa-arrow-left"></i> Back to Articles
+            </a>
+            
+            <div id="articleContent">
+                <div class="loading-spinner">
+                    <div class="loader"></div>
+                    <p>Loading article...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                    Articles<span>Web</span>
+                </a>
+                <p>Your ultimate resource for AI tools, web development tutorials, and the latest in technology. Empowering creators and developers since 2023.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#articles">Blog</a></li>
+                    <li><a href="index.html#tools">AI Tools</a></li>
+                    <li><a href="index.html#about">About Us</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a href="#">AI Tools & Reviews</a></li>
+                    <li><a href="#">Web Development</a></li>
+                    <li><a href="#">Tech News</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Product Reviews</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#" onclick="showPage('privacy')">Privacy Policy</a></li>
+                    <li><a href="#" onclick="showPage('terms')">Terms of Service</a></li>
+                    <li><a href="#" onclick="showPage('disclaimer')">Disclaimer</a></li>
+                    <li><a href="index.html#contact">Advertise With Us</a></li>
+                    <li><a href="index.html#newsletter">Newsletter</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 ArticlesWeb. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="#" onclick="showPage('privacy')">Privacy</a>
+                <a href="#" onclick="showPage('terms')">Terms</a>
+                <a href="#" onclick="showPage('disclaimer')">Disclaimer</a>
+                <a href="#">Sitemap</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // ===============================
+        // MARKDOWN PARSER (same as index)
+        // ===============================
+        function parseFrontmatter(md) {
+            const match = md.match(/^---\n([\s\S]*?)\n---/);
+            if (!match) return {};
+
+            const lines = match[1].split('\n');
+            const data = {};
+
+            lines.forEach(line => {
+                const index = line.indexOf(':');
+                if (index === -1) return;
+
+                const key = line.slice(0, index).trim();
+                let value = line.slice(index + 1).trim();
+                value = value.replace(/^"|"$/g, '');
+                data[key] = value;
+            });
+
+            return data;
+        }
+
+        function markdownToHtml(markdown) {
+            let html = markdown;
+            
+            // Headers
+            html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            
+            // Bold
+            html = html.replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>');
+            
+            // Italic
+            html = html.replace(/\*(.*)\*/gim, '<em>$1</em>');
+            
+            // Links
+            html = html.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>');
+            
+            // Images
+            html = html.replace(/!\[(.*?)\]\((.*?)\)/gim, '<img src="$2" alt="$1">');
+            
+            // Code blocks
+            html = html.replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>');
+            
+            // Inline code
+            html = html.replace(/`(.*?)`/gim, '<code>$1</code>');
+            
+            // Blockquotes
+            html = html.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
+            
+            // Paragraphs
+            html = html.replace(/^(?!<[^>]+>)(.*$)/gim, '<p>$1</p>');
+            
+            // Line breaks
+            html = html.replace(/\n/gim, '<br>');
+            
+            return html;
+        }
+
+        // ===============================
+        // LOAD SINGLE ARTICLE
+        // ===============================
+        const repo = "Abdullaha1b2c3d4/DevArticles";
+
+        async function loadArticle() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+            
+            if (!slug) {
+                document.getElementById('articleContent').innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>No article specified</h3>
+                        <p>Please select an article from the homepage.</p>
+                        <a href="index.html#articles" class="btn btn-primary" style="margin-top: 20px;">Back to Articles</a>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
+                if (!res.ok) throw new Error("Failed to fetch articles");
+                
+                const files = await res.json();
+                let articleData = null;
+                let articleContent = null;
+                
+                for (const file of files) {
+                    if (file.name.endsWith('.md')) {
+                        const raw = await fetch(file.download_url);
+                        const text = await raw.text();
+                        const frontmatter = parseFrontmatter(text);
+                        
+                        // Match by slug or filename
+                        const articleSlug = frontmatter.slug || file.name.replace('.md', '');
+                        if (articleSlug === slug || frontmatter.title?.toLowerCase().replace(/\s+/g, '-') === slug) {
+                            articleData = frontmatter;
+                            articleContent = text.replace(/^---\n[\s\S]*?\n---/, '');
+                            break;
+                        }
+                    }
+                }
+                
+                if (!articleData) {
+                    throw new Error("Article not found");
+                }
+                
+                renderArticle(articleData, articleContent);
+                
+            } catch (err) {
+                console.error("Error loading article:", err);
+                document.getElementById('articleContent').innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Article not found</h3>
+                        <p>Sorry, we couldn't find the article you're looking for.</p>
+                        <a href="index.html#articles" class="btn btn-primary" style="margin-top: 20px;">Browse Articles</a>
+                    </div>
+                `;
+            }
+        }
+        
+        function renderArticle(data, content) {
+            const categoryClass = data.categoryClass || '';
+            const categoryName = data.category || 'Article';
+            
+            const html = `
+                <article>
+                    <div class="article-header">
+                        <div class="article-category ${categoryClass}">${categoryName}</div>
+                        <h1>${data.title || 'Untitled'}</h1>
+                        <div class="article-meta">
+                            <span><i class="fas fa-calendar-alt"></i> ${data.date || 'No date'}</span>
+                            ${data.author ? `<span><i class="fas fa-user"></i> By ${data.author}</span>` : ''}
+                            ${data.readTime ? `<span><i class="fas fa-clock"></i> ${data.readTime}</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${data.image ? `<img src="${data.image}" alt="${data.title}" class="featured-image">` : ''}
+                    
+                    <div class="article-content">
+                        ${markdownToHtml(content)}
+                    </div>
+                    
+                    <div class="article-footer">
+                        ${data.tags ? `
+                        <div class="article-tags">
+                            <span><i class="fas fa-tags"></i> Tags:</span>
+                            ${data.tags.split(',').map(tag => `<a href="#" class="tag">${tag.trim()}</a>`).join('')}
+                        </div>
+                        ` : ''}
+                        
+                        <div class="share-buttons">
+                            <span><i class="fas fa-share-alt"></i> Share:</span>
+                            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(data.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn twitter">
+                                <i class="fab fa-twitter"></i> Twitter
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn facebook">
+                                <i class="fab fa-facebook"></i> Facebook
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(data.title)}" target="_blank" class="share-btn linkedin">
+                                <i class="fab fa-linkedin"></i> LinkedIn
+                            </a>
+                        </div>
+                        
+                        <div class="author-bio">
+                            <div class="author-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="author-info">
+                                <h4>About ${data.author || 'ArticlesWeb Team'}</h4>
+                                <p>Passionate about technology, AI tools, and web development. Writing to help others learn and grow in the tech space.</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <div class="related-articles">
+                    <h3><i class="fas fa-layer-group"></i> Related Articles</h3>
+                    <div class="related-grid" id="relatedGrid">
+                        <div class="loading-spinner" style="padding: 20px;">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('articleContent').innerHTML = html;
+            
+            // Load related articles based on category/tags
+            loadRelatedArticles(data.category, data.tags);
+        }
+        
+        async function loadRelatedArticles(category, tags) {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
+                const files = await res.json();
+                const articles = [];
+                
+                for (const file of files) {
+                    if (file.name.endsWith('.md')) {
+                        const raw = await fetch(file.download_url);
+                        const text = await raw.text();
+                        const frontmatter = parseFrontmatter(text);
+                        if (frontmatter.title) {
+                            articles.push(frontmatter);
+                        }
+                    }
+                }
+                
+                // Filter related articles (same category or matching tags)
+                let related = articles.filter(article => {
+                    if (article.title === document.querySelector('h1')?.innerText) return false;
+                    if (category && article.category === category) return true;
+                    if (tags && article.tags) {
+                        const articleTags = article.tags.split(',').map(t => t.trim());
+                        const currentTags = tags.split(',').map(t => t.trim());
+                        return articleTags.some(tag => currentTags.includes(tag));
+                    }
+                    return false;
+                });
+                
+                related = related.slice(0, 3);
+                
+                if (related.length === 0) {
+                    document.getElementById('relatedGrid').innerHTML = '<p style="text-align: center; color: var(--text-muted);">No related articles found.</p>';
+                    return;
+                }
+                
+                document.getElementById('relatedGrid').innerHTML = related.map(article => `
+                    <a href="article.html?slug=${article.slug || article.title?.toLowerCase().replace(/\s+/g, '-')}" class="related-card">
+                        ${article.image ? `<img src="${article.image}" alt="${article.title}">` : '<div style="height: 160px; background: var(--bg-card); display: flex; align-items: center; justify-content: center;"><i class="fas fa-newspaper" style="font-size: 2rem; color: var(--text-muted);"></i></div>'}
+                        <div class="related-card-content">
+                            <h4>${article.title}</h4>
+                            <p>${article.description || 'Read more about this topic...'}</p>
+                        </div>
+                    </a>
+                `).join('');
+                
+            } catch (err) {
+                console.error("Error loading related articles:", err);
+                document.getElementById('relatedGrid').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Unable to load related articles.</p>';
+            }
+        }
+        
+        // ===============================
+        // NAVBAR & THEME FUNCTIONALITY
+        // ===============================
+        const navbar = document.getElementById('navbar');
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar?.classList.add('scrolled');
+                backToTop?.classList.add('visible');
+            } else {
+                navbar?.classList.remove('scrolled');
+                backToTop?.classList.remove('visible');
+            }
+        });
+        
+        backToTop?.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Mobile menu
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        
+        hamburger?.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+        });
+        
+        mobileOverlay?.addEventListener('click', () => {
+            hamburger?.classList.remove('active');
+            navLinks?.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+        });
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        themeToggle?.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+        
+        // Search overlay
+        const searchToggle = document.getElementById('searchToggle');
+        const searchOverlay = document.getElementById('searchOverlay');
+        
+        searchToggle?.addEventListener('click', () => {
+            searchOverlay.classList.add('active');
+            searchOverlay.querySelector('input')?.focus();
+        });
+        
+        searchOverlay?.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                searchOverlay.classList.remove('active');
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadArticle();
+        });
+    </script>
+</body>
+</html>

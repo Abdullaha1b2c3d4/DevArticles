@@ -89,7 +89,7 @@ async function renderArticles() {
                 </div>
                 <h3>${article.title}</h3>
                 <p>${article.description}</p>
-                <a href="${article.url}" class="read-more">Read More</a>
+<a href="article.html?slug=${article.slug || article.title.toLowerCase().replace(/\s+/g, '-')}" class="read-more">Read More</a>
             </div>
         </div>
     `).join('');
@@ -326,3 +326,47 @@ if (!localStorage.getItem('cookies_accepted')) {
         if (banner) banner.classList.add('show');
     }, 2000);
 }
+
+// ===============================
+// ACTIVE NAV LINK ON SCROLL
+// ===============================
+const mainSections = document.querySelectorAll('#home, #categories, #articles, #tools, #about, #contact');
+const navBarLinks = document.querySelectorAll('.nav-links a');
+
+function updateActiveLink() {
+    let current = '';
+    const scrollPosition = window.scrollY + 100;
+
+    mainSections.forEach(section => {
+        if (!section) return;
+        
+        const sectionTop = section.offsetTop;
+        const sectionBottom = sectionTop + section.offsetHeight;
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navBarLinks.forEach(link => {
+        link.classList.remove('active');
+        const href = link.getAttribute('href');
+        if (href === `#${current}`) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// Update active link on scroll (only if sections exist)
+if (mainSections.length > 0) {
+    window.addEventListener('scroll', updateActiveLink);
+    updateActiveLink();
+}
+
+// Update active link when clicking nav links
+navBarLinks.forEach(link => {
+    link.addEventListener('click', function() {
+        navBarLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
