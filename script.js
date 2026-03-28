@@ -370,3 +370,28 @@ navBarLinks.forEach(link => {
         this.classList.add('active');
     });
 });
+// ===============================
+// CATEGORY CARD CLICK HANDLER
+// ===============================
+const categoryCards = document.querySelectorAll('.category-card');
+
+categoryCards.forEach((card, index) => {
+    card.style.cursor = 'pointer';
+    
+    card.addEventListener('click', () => {
+        let category = '';
+        
+        // Determine which category was clicked based on index or title
+        const title = card.querySelector('h3')?.innerText || '';
+        
+        if (title.includes('AI Tools') || index === 0) {
+            category = 'AI Tools';
+        } else if (title.includes('Web Development') || index === 1) {
+            category = 'Web Dev';
+        } else if (title.includes('Tech') || index === 2) {
+            category = 'Tech';
+        }
+        
+        window.location.href = `category.html?cat=${encodeURIComponent(category)}`;
+    });
+});

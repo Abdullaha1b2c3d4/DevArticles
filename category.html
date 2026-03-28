@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse articles on ArticlesWeb">
+    <title>ArticlesWeb — Articles</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .category-header {
+            text-align: center;
+            padding: 140px 2rem 60px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .category-header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .category-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .category-icon-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 24px;
+            color: white;
+        }
+        
+        .category-stats {
+            display: inline-block;
+            background: var(--accent-glow);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-light);
+            margin-top: 20px;
+        }
+        
+        .articles-grid-category {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 28px;
+            padding: 60px 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .no-articles {
+            text-align: center;
+            padding: 80px 2rem;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+        
+        .no-articles i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .back-to-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 2rem;
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .back-to-home:hover {
+            gap: 12px;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                Articles<span>Web</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#categories">Categories</a></li>
+                <li><a href="index.html#articles">Articles</a></li>
+                <li><a href="index.html#tools">AI Tools</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="search-toggle" id="searchToggle" aria-label="Search"><i class="fas fa-search"></i></button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-box">
+            <input type="text" placeholder="Search articles, tools, tutorials..." autofocus>
+        </div>
+    </div>
+
+    <!-- Category/All Articles Header -->
+    <div class="category-header" id="categoryHeader">
+        <div class="category-icon-large" id="categoryIcon">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        <h1 id="categoryTitle">Loading...</h1>
+        <p id="categoryDescription"></p>
+        <div class="category-stats" id="categoryStats"></div>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="articles-grid-category" id="articlesGridCategory">
+        <div class="loading-spinner" style="text-align: center; padding: 60px;">
+            <div class="loader"></div>
+            <p style="margin-top: 20px;">Loading articles...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                    Articles<span>Web</span>
+                </a>
+                <p>Your ultimate resource for AI tools, web development tutorials, and the latest in technology.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#articles">Blog</a></li>
+                    <li><a href="index.html#tools">AI Tools</a></li>
+                    <li><a href="index.html#about">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a href="category.html?cat=AI%20Tools">AI Tools & Reviews</a></li>
+                    <li><a href="category.html?cat=Web%20Dev">Web Development</a></li>
+                    <li><a href="category.html?cat=Tech">Tech & Innovation</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#" onclick="showPage('privacy')">Privacy Policy</a></li>
+                    <li><a href="#" onclick="showPage('terms')">Terms of Service</a></li>
+                    <li><a href="#" onclick="showPage('disclaimer')">Disclaimer</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 ArticlesWeb. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="#" onclick="showPage('privacy')">Privacy</a>
+                <a href="#" onclick="showPage('terms')">Terms</a>
+                <a href="#" onclick="showPage('disclaimer')">Disclaimer</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // ===============================
+        // MARKDOWN PARSER
+        // ===============================
+        function parseFrontmatter(md) {
+            const match = md.match(/^---\n([\s\S]*?)\n---/);
+            if (!match) return {};
+
+            const lines = match[1].split('\n');
+            const data = {};
+
+            lines.forEach(line => {
+                const index = line.indexOf(':');
+                if (index === -1) return;
+
+                const key = line.slice(0, index).trim();
+                let value = line.slice(index + 1).trim();
+                value = value.replace(/^"|"$/g, '');
+                data[key] = value;
+            });
+
+            return data;
+        }
+
+        const repo = "Abdullaha1b2c3d4/DevArticles";
+
+        // Category configurations
+        const categoryConfig = {
+            "AI Tools": {
+                title: "AI Tools & Reviews",
+                description: "In-depth reviews and comparisons of the latest AI tools for productivity, creativity, and development.",
+                icon: "fas fa-robot",
+                iconBg: "linear-gradient(135deg, #6c5ce7, #a29bfe)",
+                tagClass: "tag-ai"
+            },
+            "Web Dev": {
+                title: "Web Development",
+                description: "Tutorials, frameworks, best practices, and the latest trends in frontend and backend development.",
+                icon: "fas fa-code",
+                iconBg: "linear-gradient(135deg, #00cec9, #0984e3)",
+                tagClass: "tag-webdev"
+            },
+            "Tech": {
+                title: "Tech & Innovation",
+                description: "Breaking news, gadget reviews, startup stories, and emerging technologies reshaping our world.",
+                icon: "fas fa-microchip",
+                iconBg: "linear-gradient(135deg, #fd79a8, #e17055)",
+                tagClass: "tag-tech"
+            }
+        };
+
+        // All articles config (when no category specified)
+        const allArticlesConfig = {
+            title: "All Articles",
+            description: "Browse all our latest articles on AI tools, web development, and technology innovation.",
+            icon: "fas fa-newspaper",
+            iconBg: "var(--gradient-1)",
+            tagClass: ""
+        };
+
+        // Load articles from GitHub
+        async function loadArticles() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
+                if (!res.ok) throw new Error("GitHub API failed");
+
+                const files = await res.json();
+                if (!Array.isArray(files)) return [];
+
+                const articles = [];
+
+                for (const file of files) {
+                    if (!file.name.endsWith(".md")) continue;
+
+                    const raw = await fetch(file.download_url);
+                    const text = await raw.text();
+                    const data = parseFrontmatter(text);
+
+                    if (data.title) {
+                        articles.push(data);
+                    }
+                }
+
+                return articles;
+
+            } catch (err) {
+                console.error("Error loading articles:", err);
+                return [];
+            }
+        }
+
+        // Get category from URL (returns null if no category specified)
+        function getCategoryFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let cat = urlParams.get('cat');
+            
+            if (cat) {
+                cat = decodeURIComponent(cat);
+            }
+            
+            return cat;
+        }
+
+        // Filter articles by category (returns all articles if no category specified)
+        function filterArticlesByCategory(articles, category) {
+            if (!category) {
+                return articles; // Return all articles
+            }
+            
+            return articles.filter(article => {
+                return article.category === category;
+            });
+        }
+
+        // Get category class for post tag
+        function getTagClass(articleCategory) {
+            if (articleCategory === "AI Tools") return "tag-ai";
+            if (articleCategory === "Web Dev") return "tag-webdev";
+            if (articleCategory === "Tech") return "tag-tech";
+            return "";
+        }
+
+        // Render header (All Articles or Category specific)
+        function renderHeader(category) {
+            let config;
+            
+            if (!category) {
+                // Show "All Articles" header
+                config = allArticlesConfig;
+            } else {
+                // Show category specific header
+                config = categoryConfig[category];
+                if (!config) {
+                    config = allArticlesConfig;
+                }
+            }
+            
+            document.getElementById('categoryTitle').textContent = config.title;
+            document.getElementById('categoryDescription').textContent = config.description;
+            
+            const iconElement = document.getElementById('categoryIcon');
+            iconElement.style.background = config.iconBg;
+            iconElement.innerHTML = `<i class="${config.icon}"></i>`;
+        }
+
+        // Render articles
+        function renderArticles(articles, category) {
+            const grid = document.getElementById('articlesGridCategory');
+            
+            if (articles.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-articles">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No articles found</h3>
+                        <p>There are no articles to display yet. Check back soon!</p>
+                        <a href="index.html#articles" class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-arrow-left"></i> Back to Articles
+                        </a>
+                    </div>
+                `;
+                document.getElementById('categoryStats').textContent = `0 articles`;
+                return;
+            }
+            
+            document.getElementById('categoryStats').textContent = `${articles.length} articles`;
+            
+            grid.innerHTML = articles.map(article => `
+                <div class="post-card">
+                    <div class="post-image">
+                        <img src="${article.image || 'https://via.placeholder.com/400x200?text=No+Image'}" alt="${article.title}" loading="lazy">
+                        <span class="post-tag ${getTagClass(article.category)}">${article.category || 'Article'}</span>
+                    </div>
+                    <div class="post-body">
+                        <div class="post-meta">
+                            <span><i class="fas fa-calendar-alt"></i> ${article.date || 'No date'}</span>
+                            <span><i class="fas fa-clock"></i> ${article.readTime || '5 min read'}</span>
+                        </div>
+                        <h3>${article.title}</h3>
+                        <p>${article.description || 'Read more about this topic...'}</p>
+                        <a href="article.html?slug=${article.slug || article.title.toLowerCase().replace(/\s+/g, '-')}" class="read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Main function to load and display articles
+        async function loadCategoryArticles() {
+            const category = getCategoryFromURL();
+            renderHeader(category);
+            
+            const allArticles = await loadArticles();
+            const filteredArticles = filterArticlesByCategory(allArticles, category);
+            renderArticles(filteredArticles, category);
+        }
+
+        // ===============================
+        // NAVBAR & THEME FUNCTIONALITY
+        // ===============================
+        const navbar = document.getElementById('navbar');
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar?.classList.add('scrolled');
+                backToTop?.classList.add('visible');
+            } else {
+                navbar?.classList.remove('scrolled');
+                backToTop?.classList.remove('visible');
+            }
+        });
+        
+        backToTop?.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Mobile menu
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        
+        hamburger?.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+        });
+        
+        mobileOverlay?.addEventListener('click', () => {
+            hamburger?.classList.remove('active');
+            navLinks?.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+        });
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        themeToggle?.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+        
+        // Search overlay
+        const searchToggle = document.getElementById('searchToggle');
+        const searchOverlay = document.getElementById('searchOverlay');
+        
+        searchToggle?.addEventListener('click', () => {
+            searchOverlay.classList.add('active');
+            searchOverlay.querySelector('input')?.focus();
+        });
+        
+        searchOverlay?.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                searchOverlay.classList.remove('active');
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategoryArticles();
+        });
+    </script>
+</body>
+</html>
