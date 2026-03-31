@@ -1,9 +1,7 @@
 ---
 id: 1
 title: learning tech
-description: |-
-  weirunvgaihof
-  sdfhkjehsafoi
+description: i ksjfksd skjdfoiewjrfo kjeoifds
 image: /assets/images/fabio-oyxis2kalvg-unsplash-1-.jpg
 category: Tech
 categoryClass: Tech
