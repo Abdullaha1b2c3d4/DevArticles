@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://articlesweb.netlify.app/</loc>
+    <priority>1.0</priority>
+  </url>
+  <!-- Category page with example category -->
+  <url>
+    <loc>https://articlesweb.netlify.app/category.html?cat=Tech/</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://articlesweb.netlify.app/category.html?cat=AI Tools/</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://articlesweb.netlify.app/category.html?cat=Web Dev/</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Article pages -->
+  <url>
+    <loc>https://articlesweb.netlify.app/article.html</loc>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>
