@@ -54,22 +54,40 @@ const repo = "Abdullaha1b2c3d4/DevArticles";
 // ===============================
 // LOAD ARTICLES (WITH CACHE)
 // ===============================
+// ===============================
+// LOAD ARTICLES (WITH CACHE & FALLBACK)
+// ===============================
+// ===============================
+// LOAD ARTICLES (WITH CACHE & FALLBACK)
+// ===============================
 async function loadArticles() {
+    // Check cache first
+    const cached = getCachedData('articles');
+    if (cached && cached.length > 0) {
+        console.log('✅ Loading articles from cache');
+        return cached;
+    }
+    
     try {
-        console.log('=== DEBUG: Starting to fetch articles ===');
-        
+        console.log('🔄 Fetching articles from GitHub API');
         const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
         
         console.log('GitHub API Response Status:', res.status);
         
         if (!res.ok) {
-            console.error('GitHub API failed with status:', res.status);
-            throw new Error("GitHub API failed");
+            if (res.status === 403 || res.status === 429) {
+                console.warn('⚠️ Rate limited! Using cached data');
+                const anyCache = localStorage.getItem('articles');
+                if (anyCache) {
+                    const fallback = JSON.parse(anyCache);
+                    return fallback.value || [];
+                }
+            }
+            throw new Error(`GitHub API failed: ${res.status}`);
         }
 
         const files = await res.json();
         console.log('Files found:', files.length);
-        console.log('File names:', files.map(f => f.name));
 
         if (!Array.isArray(files)) {
             console.error("Not an array:", files);
@@ -79,39 +97,72 @@ async function loadArticles() {
         const articles = [];
 
         for (const file of files) {
-            if (!file.name.endsWith(".md")) {
-                console.log(`Skipping non-md file: ${file.name}`);
-                continue;
-            }
+            if (!file.name.endsWith(".md")) continue;
 
-            console.log(`\n--- Processing: ${file.name} ---`);
-            
             const raw = await fetch(file.download_url);
             const text = await raw.text();
-            console.log(`File content length: ${text.length} characters`);
-            console.log(`First 200 chars: ${text.substring(0, 200)}`);
-            
             const data = parseFrontmatter(text);
-            console.log('Parsed frontmatter:', data);
 
-            if (!data.title) {
-                console.warn(`⚠️ Skipping: No title in ${file.name}`);
-                continue;
+            if (!data.title) continue;
+            
+            // FIX IMAGE URL - Convert GitHub relative paths to raw URLs
+            let imageUrl = data.image || '';
+            
+            if (imageUrl) {
+                // If it's a relative path like "assets/images/image.jpg"
+                if (!imageUrl.startsWith('http') && !imageUrl.startsWith('//')) {
+                    // Remove leading slash if present
+                    if (imageUrl.startsWith('/')) {
+                        imageUrl = imageUrl.substring(1);
+                    }
+                    // Construct raw GitHub URL
+                    imageUrl = `https://raw.githubusercontent.com/${repo}/main/${imageUrl}`;
+                }
+            } else {
+                imageUrl = 'https://via.placeholder.com/400x200?text=No+Image';
             }
             
-            if (!data.image) {
-                console.warn(`⚠️ Warning: No image in ${file.name}`);
+            // Set defaults for missing fields
+            if (!data.category) data.category = 'General';
+            if (!data.categoryClass) {
+                if (data.category === 'AI Tools') data.categoryClass = 'tag-ai';
+                else if (data.category === 'Web Dev') data.categoryClass = 'tag-webdev';
+                else if (data.category === 'Tech') data.categoryClass = 'tag-tech';
+                else data.categoryClass = 'tag-ai';
             }
+            if (!data.date) data.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if (!data.readTime) data.readTime = '5 min read';
+            if (!data.description) data.description = 'Read more about this topic...';
+            
+            // Add the fixed image URL to the article data
+            data.image = imageUrl;
 
             articles.push(data);
-            console.log(`✅ Added article: ${data.title}`);
         }
 
-        console.log(`\n=== Total articles loaded: ${articles.length} ===`);
+        console.log(`✅ Total articles loaded: ${articles.length}`);
+        
+        // Save to cache
+        if (articles.length > 0) {
+            setCachedData('articles', articles);
+        }
+        
         return articles;
 
     } catch (err) {
         console.error("Error loading articles:", err);
+        
+        const anyCache = localStorage.getItem('articles');
+        if (anyCache) {
+            console.log('⚠️ Using expired cache as last resort');
+            try {
+                const fallback = JSON.parse(anyCache);
+                return fallback.value || [];
+            } catch (e) {
+                return [];
+            }
+        }
+        
         return [];
     }
 }
@@ -249,34 +300,49 @@ async function renderArticles() {
 
     const articles = await loadArticles();
 
-    if (articles.length === 0) {
+    if (!articles || articles.length === 0) {
         grid.innerHTML = `
             <div style="text-align: center; padding: 60px; grid-column: 1/-1;">
                 <i class="fas fa-newspaper" style="font-size: 3rem; opacity: 0.5; margin-bottom: 20px; display: block;"></i>
                 <h3>No articles found</h3>
                 <p style="color: var(--text-muted);">Check back later for new content!</p>
+                <button onclick="refreshContent()" class="btn btn-outline" style="margin-top: 20px;">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
         `;
         return;
     }
 
-    grid.innerHTML = articles.map(article => `
-        <div class="post-card">
-            <div class="post-image">
-                <img src="${article.image}" alt="${article.title}" loading="lazy">
-                <span class="post-tag ${article.categoryClass}">${article.category}</span>
-            </div>
-            <div class="post-body">
-                <div class="post-meta">
-                    <span>${article.date}</span>
-                    <span>${article.readTime}</span>
+    grid.innerHTML = articles.map(article => {
+        // Fix image path
+        let imageUrl = article.image || 'https://via.placeholder.com/400x200?text=No+Image';
+        if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('//')) {
+            if (imageUrl.startsWith('/')) {
+                imageUrl = imageUrl;
+            } else {
+                imageUrl = '/' + imageUrl;
+            }
+        }
+        
+        return `
+            <div class="post-card">
+                <div class="post-image">
+                    <img src="${imageUrl}" alt="${article.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x200?text=Image+Error'; this.onerror=null;">
+                    <span class="post-tag ${article.categoryClass}">${article.category}</span>
                 </div>
-                <h3>${article.title}</h3>
-                <p>${article.description}</p>
-<a href="article.html?slug=${article.slug || article.title.toLowerCase().replace(/\s+/g, '-')}" class="read-more">Read More</a>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span>${article.date}</span>
+                        <span>${article.readTime}</span>
+                    </div>
+                    <h3>${article.title}</h3>
+                    <p>${article.description}</p>
+                    <a href="article.html?slug=${article.slug || article.title.toLowerCase().replace(/\s+/g, '-')}" class="read-more">Read More</a>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // ===============================

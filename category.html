@@ -215,6 +215,34 @@
     </button>
 
     <script>
+
+        // ===============================
+// CACHE HELPER FUNCTIONS
+// ===============================
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
+
+function getCachedData(key) {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+    
+    try {
+        const data = JSON.parse(cached);
+        if (Date.now() - data.timestamp > CACHE_DURATION) {
+            localStorage.removeItem(key);
+            return null;
+        }
+        return data.value;
+    } catch (e) {
+        return null;
+    }
+}
+
+function setCachedData(key, value) {
+    localStorage.setItem(key, JSON.stringify({
+        timestamp: Date.now(),
+        value: value
+    }));
+}
         // ===============================
         // MARKDOWN PARSER
         // ===============================
@@ -275,35 +303,65 @@
         };
 
         // Load articles from GitHub
-        async function loadArticles() {
-            try {
-                const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
-                if (!res.ok) throw new Error("GitHub API failed");
+        // Load articles from GitHub (WITH IMAGE FIX)
+async function loadArticles() {
+    // Check cache first
+    const cached = getCachedData('articles');
+    if (cached && cached.length > 0) {
+        console.log('✅ Loading articles from cache');
+        return cached;
+    }
+    
+    try {
+        console.log('🔄 Fetching articles from GitHub API');
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
+        if (!res.ok) throw new Error("GitHub API failed");
 
-                const files = await res.json();
-                if (!Array.isArray(files)) return [];
+        const files = await res.json();
+        if (!Array.isArray(files)) return [];
 
-                const articles = [];
+        const articles = [];
 
-                for (const file of files) {
-                    if (!file.name.endsWith(".md")) continue;
+        for (const file of files) {
+            if (!file.name.endsWith(".md")) continue;
 
-                    const raw = await fetch(file.download_url);
-                    const text = await raw.text();
-                    const data = parseFrontmatter(text);
+            const raw = await fetch(file.download_url);
+            const text = await raw.text();
+            const data = parseFrontmatter(text);
 
-                    if (data.title) {
-                        articles.push(data);
+            if (data.title) {
+                // Fix image URL
+                if (data.image) {
+                    let imageUrl = data.image;
+                    if (!imageUrl.startsWith('http') && !imageUrl.startsWith('//')) {
+                        if (imageUrl.startsWith('/')) {
+                            imageUrl = imageUrl.substring(1);
+                        }
+                        imageUrl = `https://raw.githubusercontent.com/${repo}/main/${imageUrl}`;
                     }
+                    data.image = imageUrl;
                 }
-
-                return articles;
-
-            } catch (err) {
-                console.error("Error loading articles:", err);
-                return [];
+                articles.push(data);
             }
         }
+
+        // Save to cache
+        if (articles.length > 0) {
+            setCachedData('articles', articles);
+        }
+        
+        return articles;
+
+    } catch (err) {
+        console.error("Error loading articles:", err);
+        const anyCache = localStorage.getItem('articles');
+        if (anyCache) {
+            const fallback = JSON.parse(anyCache);
+            return fallback.value || [];
+        }
+        return [];
+    }
+}
 
         // Get category from URL (returns null if no category specified)
         function getCategoryFromURL() {

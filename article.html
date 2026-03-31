@@ -476,207 +476,150 @@
     </button>
 
     <script>
-        // ===============================
-        // MARKDOWN PARSER (same as index)
-        // ===============================
-        function parseFrontmatter(md) {
-            const match = md.match(/^---\n([\s\S]*?)\n---/);
-            if (!match) return {};
+    // ===============================
+    // CACHE HELPER FUNCTIONS
+    // ===============================
+    const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
 
-            const lines = match[1].split('\n');
-            const data = {};
+    function getCachedData(key) {
+        const cached = localStorage.getItem(key);
+        if (!cached) return null;
+        
+        try {
+            const data = JSON.parse(cached);
+            if (Date.now() - data.timestamp > CACHE_DURATION) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            return data.value;
+        } catch (e) {
+            return null;
+        }
+    }
 
-            lines.forEach(line => {
-                const index = line.indexOf(':');
-                if (index === -1) return;
+    function setCachedData(key, value) {
+        localStorage.setItem(key, JSON.stringify({
+            timestamp: Date.now(),
+            value: value
+        }));
+    }
 
-                const key = line.slice(0, index).trim();
-                let value = line.slice(index + 1).trim();
-                value = value.replace(/^"|"$/g, '');
-                data[key] = value;
-            });
+    // ===============================
+    // MARKDOWN PARSER
+    // ===============================
+    function parseFrontmatter(md) {
+        const match = md.match(/^---\n([\s\S]*?)\n---/);
+        if (!match) return {};
 
-            return data;
+        const lines = match[1].split('\n');
+        const data = {};
+
+        lines.forEach(line => {
+            const index = line.indexOf(':');
+            if (index === -1) return;
+
+            const key = line.slice(0, index).trim();
+            let value = line.slice(index + 1).trim();
+            value = value.replace(/^"|"$/g, '');
+            data[key] = value;
+        });
+
+        return data;
+    }
+
+    function markdownToHtml(markdown) {
+        let html = markdown;
+        
+        // Fix image paths in markdown content
+        html = html.replace(/!\[(.*?)\]\((.*?)\)/gim, (match, alt, src) => {
+            let imageSrc = src;
+            // Convert relative image paths to raw GitHub URLs
+            if (!imageSrc.startsWith('http') && !imageSrc.startsWith('//')) {
+                if (imageSrc.startsWith('/')) {
+                    imageSrc = imageSrc.substring(1);
+                }
+                imageSrc = `https://raw.githubusercontent.com/Abdullaha1b2c3d4/DevArticles/main/${imageSrc}`;
+            }
+            return `<img src="${imageSrc}" alt="${alt}" loading="lazy" onerror="this.src='https://via.placeholder.com/800x400?text=Image+Not+Found'">`;
+        });
+        
+        // Headers
+        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+        
+        // Links
+        html = html.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>');
+        
+        // Bold
+        html = html.replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>');
+        
+        // Italic
+        html = html.replace(/\*(.*)\*/gim, '<em>$1</em>');
+        
+        // Code blocks
+        html = html.replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>');
+        
+        // Inline code
+        html = html.replace(/`(.*?)`/gim, '<code>$1</code>');
+        
+        // Blockquotes
+        html = html.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
+        
+        // Paragraphs
+        html = html.replace(/^(?!<[^>]+>)(.*$)/gim, '<p>$1</p>');
+        
+        // Line breaks
+        html = html.replace(/\n/gim, '<br>');
+        
+        return html;
+    }
+
+    // ===============================
+    // LOAD SINGLE ARTICLE
+    // ===============================
+    const repo = "Abdullaha1b2c3d4/DevArticles";
+
+    // Helper function to fix image URL
+    function fixImageUrl(url) {
+        if (!url) return 'https://via.placeholder.com/800x400?text=No+Image';
+        if (url.startsWith('http')) return url;
+        if (url.startsWith('//')) return 'https:' + url;
+        
+        // Remove leading slash if present
+        let cleanUrl = url;
+        if (cleanUrl.startsWith('/')) {
+            cleanUrl = cleanUrl.substring(1);
+        }
+        return `https://raw.githubusercontent.com/${repo}/main/${cleanUrl}`;
+    }
+
+    async function loadArticle() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        
+        if (!slug) {
+            document.getElementById('articleContent').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h3>No article specified</h3>
+                    <p>Please select an article from the homepage.</p>
+                    <a href="index.html#articles" class="btn btn-primary" style="margin-top: 20px;">Back to Articles</a>
+                </div>
+            `;
+            return;
         }
 
-        function markdownToHtml(markdown) {
-    let html = markdown;
-    
-    // Headers
-    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-    
-    // Images (MOVE THIS UP)
-    html = html.replace(/!\[(.*?)\]\((.*?)\)/gim, '<img src="$2" alt="$1">');
-    
-    // Links (AFTER images)
-    html = html.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>');
-    
-    // Bold
-    html = html.replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>');
-    
-    // Italic
-    html = html.replace(/\*(.*)\*/gim, '<em>$1</em>');
-    
-    // Code blocks
-    html = html.replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>');
-    
-    // Inline code
-    html = html.replace(/`(.*?)`/gim, '<code>$1</code>');
-    
-    // Blockquotes
-    html = html.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
-    
-    // Paragraphs
-    html = html.replace(/^(?!<[^>]+>)(.*$)/gim, '<p>$1</p>');
-    
-    // Line breaks
-    html = html.replace(/\n/gim, '<br>');
-    
-    return html;
-}
-
-        // ===============================
-        // LOAD SINGLE ARTICLE
-        // ===============================
-        const repo = "Abdullaha1b2c3d4/DevArticles";
-
-        async function loadArticle() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const slug = urlParams.get('slug');
+        try {
+            // Check cache first
+            let articles = getCachedData('articles');
             
-            if (!slug) {
-                document.getElementById('articleContent').innerHTML = `
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <h3>No article specified</h3>
-                        <p>Please select an article from the homepage.</p>
-                        <a href="index.html#articles" class="btn btn-primary" style="margin-top: 20px;">Back to Articles</a>
-                    </div>
-                `;
-                return;
-            }
-
-            try {
+            if (!articles) {
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
                 if (!res.ok) throw new Error("Failed to fetch articles");
                 
                 const files = await res.json();
-                let articleData = null;
-                let articleContent = null;
-                
-                for (const file of files) {
-                    if (file.name.endsWith('.md')) {
-                        const raw = await fetch(file.download_url);
-                        const text = await raw.text();
-                        const frontmatter = parseFrontmatter(text);
-                        
-                        // Match by slug or filename
-                        const articleSlug = frontmatter.slug || file.name.replace('.md', '');
-                        if (articleSlug === slug || frontmatter.title?.toLowerCase().replace(/\s+/g, '-') === slug) {
-                            articleData = frontmatter;
-                            articleContent = text.replace(/^---\n[\s\S]*?\n---/, '');
-                            break;
-                        }
-                    }
-                }
-                
-                if (!articleData) {
-                    throw new Error("Article not found");
-                }
-                
-                renderArticle(articleData, articleContent);
-                
-            } catch (err) {
-                console.error("Error loading article:", err);
-                document.getElementById('articleContent').innerHTML = `
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <h3>Article not found</h3>
-                        <p>Sorry, we couldn't find the article you're looking for.</p>
-                        <a href="index.html#articles" class="btn btn-primary" style="margin-top: 20px;">Browse Articles</a>
-                    </div>
-                `;
-            }
-        }
-        
-        function renderArticle(data, content) {
-            const categoryClass = data.categoryClass || '';
-            const categoryName = data.category || 'Article';
-            
-            const html = `
-                <article>
-                    <div class="article-header">
-                        <div class="article-category ${categoryClass}">${categoryName}</div>
-                        <h1>${data.title || 'Untitled'}</h1>
-                        <div class="article-meta">
-                            <span><i class="fas fa-calendar-alt"></i> ${data.date || 'No date'}</span>
-                            ${data.author ? `<span><i class="fas fa-user"></i> By ${data.author}</span>` : ''}
-                            ${data.readTime ? `<span><i class="fas fa-clock"></i> ${data.readTime}</span>` : ''}
-                        </div>
-                    </div>
-                    
-                    ${data.image ? `<img src="${data.image}" alt="${data.title}" class="featured-image">` : ''}
-                    
-                    <div class="article-content">
-                        ${markdownToHtml(content)}
-                    </div>
-                    
-                    <div class="article-footer">
-                        ${data.tags ? `
-                        <div class="article-tags">
-                            <span><i class="fas fa-tags"></i> Tags:</span>
-                            ${data.tags.split(',').map(tag => `<a href="#" class="tag">${tag.trim()}</a>`).join('')}
-                        </div>
-                        ` : ''}
-                        
-                        <div class="share-buttons">
-                            <span><i class="fas fa-share-alt"></i> Share:</span>
-                            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(data.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn twitter">
-                                <i class="fab fa-twitter"></i> Twitter
-                            </a>
-                            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn facebook">
-                                <i class="fab fa-facebook"></i> Facebook
-                            </a>
-                            <a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(data.title)}" target="_blank" class="share-btn linkedin">
-                                <i class="fab fa-linkedin"></i> LinkedIn
-                            </a>
-                        </div>
-                        
-                        <div class="author-bio">
-                            <div class="author-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="author-info">
-                                <h4>About ${data.author || 'ArticlesWeb Team'}</h4>
-                                <p>Passionate about technology, AI tools, and web development. Writing to help others learn and grow in the tech space.</p>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                
-                <div class="related-articles">
-                    <h3><i class="fas fa-layer-group"></i> Related Articles</h3>
-                    <div class="related-grid" id="relatedGrid">
-                        <div class="loading-spinner" style="padding: 20px;">
-                            <div class="loader"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('articleContent').innerHTML = html;
-            console.log(content);
-            // Load related articles based on category/tags
-            loadRelatedArticles(data.category, data.tags);
-        }
-        
-        async function loadRelatedArticles(category, tags) {
-            try {
-                const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
-                const files = await res.json();
-                const articles = [];
+                articles = [];
                 
                 for (const file of files) {
                     if (file.name.endsWith('.md')) {
@@ -684,114 +627,293 @@
                         const text = await raw.text();
                         const frontmatter = parseFrontmatter(text);
                         if (frontmatter.title) {
+                            // Fix image URL in frontmatter
+                            if (frontmatter.image) {
+                                frontmatter.image = fixImageUrl(frontmatter.image);
+                            }
                             articles.push(frontmatter);
                         }
                     }
                 }
-                
-                // Filter related articles (same category or matching tags)
-                let related = articles.filter(article => {
-                    if (article.title === document.querySelector('h1')?.innerText) return false;
-                    if (category && article.category === category) return true;
-                    if (tags && article.tags) {
-                        const articleTags = article.tags.split(',').map(t => t.trim());
-                        const currentTags = tags.split(',').map(t => t.trim());
-                        return articleTags.some(tag => currentTags.includes(tag));
-                    }
-                    return false;
-                });
-                
-                related = related.slice(0, 3);
-                
-                if (related.length === 0) {
-                    document.getElementById('relatedGrid').innerHTML = '<p style="text-align: center; color: var(--text-muted);">No related articles found.</p>';
-                    return;
+                setCachedData('articles', articles);
+            }
+            
+            let articleData = null;
+            let articleContent = null;
+            
+            for (const article of articles) {
+                const articleSlug = article.slug || article.title?.toLowerCase().replace(/\s+/g, '-');
+                if (articleSlug === slug) {
+                    articleData = article;
+                    break;
                 }
-                
-                document.getElementById('relatedGrid').innerHTML = related.map(article => `
-                    <a href="article.html?slug=${article.slug || article.title?.toLowerCase().replace(/\s+/g, '-')}" class="related-card">
-                        ${article.image ? `<img src="${article.image}" alt="${article.title}">` : '<div style="height: 160px; background: var(--bg-card); display: flex; align-items: center; justify-content: center;"><i class="fas fa-newspaper" style="font-size: 2rem; color: var(--text-muted);"></i></div>'}
-                        <div class="related-card-content">
-                            <h4>${article.title}</h4>
-                            <p>${article.description || 'Read more about this topic...'}</p>
-                        </div>
-                    </a>
-                `).join('');
-                
-            } catch (err) {
-                console.error("Error loading related articles:", err);
-                document.getElementById('relatedGrid').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Unable to load related articles.</p>';
             }
-        }
-        
-        // ===============================
-        // NAVBAR & THEME FUNCTIONALITY
-        // ===============================
-        const navbar = document.getElementById('navbar');
-        const backToTop = document.getElementById('backToTop');
-        
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                navbar?.classList.add('scrolled');
-                backToTop?.classList.add('visible');
+            
+            if (!articleData) {
+                throw new Error("Article not found");
+            }
+            
+            // Fetch the full content
+            const fileSlug = articleData.slug || articleData.title.toLowerCase().replace(/\s+/g, '-');
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles/${fileSlug}.md`);
+            
+            if (res.ok) {
+                const file = await res.json();
+                const raw = await fetch(file.download_url);
+                const text = await raw.text();
+                articleContent = text.replace(/^---\n[\s\S]*?\n---/, '');
             } else {
-                navbar?.classList.remove('scrolled');
-                backToTop?.classList.remove('visible');
+                // Try to find by title
+                const allFiles = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
+                const files = await allFiles.json();
+                
+                for (const file of files) {
+                    if (file.name.endsWith('.md')) {
+                        const raw = await fetch(file.download_url);
+                        const text = await raw.text();
+                        const frontmatter = parseFrontmatter(text);
+                        if (frontmatter.title === articleData.title) {
+                            articleContent = text.replace(/^---\n[\s\S]*?\n---/, '');
+                            break;
+                        }
+                    }
+                }
             }
-        });
-        
-        backToTop?.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-        
-        // Mobile menu
-        const hamburger = document.getElementById('hamburger');
-        const navLinks = document.getElementById('navLinks');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        
-        hamburger?.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navLinks.classList.toggle('active');
-            mobileOverlay.classList.toggle('active');
-        });
-        
-        mobileOverlay?.addEventListener('click', () => {
-            hamburger?.classList.remove('active');
-            navLinks?.classList.remove('active');
-            mobileOverlay.classList.remove('active');
-        });
-        
-        // Theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        
-        themeToggle?.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-        });
-        
-        // Search overlay
-        const searchToggle = document.getElementById('searchToggle');
-        const searchOverlay = document.getElementById('searchOverlay');
-        
-        searchToggle?.addEventListener('click', () => {
-            searchOverlay.classList.add('active');
-            searchOverlay.querySelector('input')?.focus();
-        });
-        
-        searchOverlay?.addEventListener('click', (e) => {
-            if (e.target === searchOverlay) {
-                searchOverlay.classList.remove('active');
+            
+            if (!articleContent) {
+                throw new Error("Could not load article content");
             }
-        });
+            
+            renderArticle(articleData, articleContent);
+            
+        } catch (err) {
+            console.error("Error loading article:", err);
+            document.getElementById('articleContent').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h3>Article not found</h3>
+                    <p>Sorry, we couldn't find the article you're looking for.</p>
+                    <a href="index.html#articles" class="btn btn-primary" style="margin-top: 20px;">Browse Articles</a>
+                    <button onclick="location.reload()" class="btn btn-outline" style="margin-top: 20px; margin-left: 10px;">
+                        <i class="fas fa-sync-alt"></i> Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
+    
+    function renderArticle(data, content) {
+        const categoryClass = data.categoryClass || '';
+        const categoryName = data.category || 'Article';
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadArticle();
-        });
-    </script>
+        // Ensure featured image URL is fixed
+        const featuredImage = data.image ? data.image : '';
+        
+        const html = `
+            <article>
+                <div class="article-header">
+                    <div class="article-category ${categoryClass}">${categoryName}</div>
+                    <h1>${data.title || 'Untitled'}</h1>
+                    <div class="article-meta">
+                        <span><i class="fas fa-calendar-alt"></i> ${data.date || 'No date'}</span>
+                        ${data.author ? `<span><i class="fas fa-user"></i> By ${data.author}</span>` : ''}
+                        ${data.readTime ? `<span><i class="fas fa-clock"></i> ${data.readTime}</span>` : ''}
+                    </div>
+                </div>
+                
+                ${featuredImage ? `<img src="${featuredImage}" alt="${data.title}" class="featured-image" onerror="this.src='https://via.placeholder.com/800x400?text=Image+Not+Found'; this.onerror=null;">` : ''}
+                
+                <div class="article-content">
+                    ${markdownToHtml(content)}
+                </div>
+                
+                <div class="article-footer">
+                    ${data.tags ? `
+                    <div class="article-tags">
+                        <span><i class="fas fa-tags"></i> Tags:</span>
+                        ${data.tags.split(',').map(tag => `<a href="category.html?cat=${encodeURIComponent(tag.trim())}" class="tag">${tag.trim()}</a>`).join('')}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="share-buttons">
+                        <span><i class="fas fa-share-alt"></i> Share:</span>
+                        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(data.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn twitter">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn facebook">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(data.title)}" target="_blank" class="share-btn linkedin">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                    </div>
+                    
+                    <div class="author-bio">
+                        <div class="author-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="author-info">
+                            <h4>About ${data.author || 'ArticlesWeb Team'}</h4>
+                            <p>Passionate about technology, AI tools, and web development. Writing to help others learn and grow in the tech space.</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            
+            <div class="related-articles">
+                <h3><i class="fas fa-layer-group"></i> Related Articles</h3>
+                <div class="related-grid" id="relatedGrid">
+                    <div class="loading-spinner" style="padding: 20px;">
+                        <div class="loader"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('articleContent').innerHTML = html;
+        
+        // Load related articles based on category/tags
+        loadRelatedArticles(data.category, data.tags);
+    }
+    
+    async function loadRelatedArticles(category, tags) {
+        try {
+            let articles = getCachedData('articles');
+            
+            if (!articles) {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/content/articles`);
+                const files = await res.json();
+                articles = [];
+                
+                for (const file of files) {
+                    if (file.name.endsWith('.md')) {
+                        const raw = await fetch(file.download_url);
+                        const text = await raw.text();
+                        const frontmatter = parseFrontmatter(text);
+                        if (frontmatter.title) {
+                            if (frontmatter.image) {
+                                frontmatter.image = fixImageUrl(frontmatter.image);
+                            }
+                            articles.push(frontmatter);
+                        }
+                    }
+                }
+            }
+            
+            let related = articles.filter(article => {
+                if (article.title === document.querySelector('h1')?.innerText) return false;
+                if (category && article.category === category) return true;
+                if (tags && article.tags) {
+                    const articleTags = article.tags.split(',').map(t => t.trim());
+                    const currentTags = tags.split(',').map(t => t.trim());
+                    return articleTags.some(tag => currentTags.includes(tag));
+                }
+                return false;
+            });
+            
+            related = related.slice(0, 3);
+            
+            if (related.length === 0) {
+                document.getElementById('relatedGrid').innerHTML = '<p style="text-align: center; color: var(--text-muted);">No related articles found.</p>';
+                return;
+            }
+            
+            document.getElementById('relatedGrid').innerHTML = related.map(article => `
+                <a href="article.html?slug=${article.slug || article.title?.toLowerCase().replace(/\s+/g, '-')}" class="related-card">
+                    ${article.image ? `<img src="${article.image}" alt="${article.title}" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'; this.onerror=null;">` : '<div style="height: 160px; background: var(--bg-card); display: flex; align-items: center; justify-content: center;"><i class="fas fa-newspaper" style="font-size: 2rem; color: var(--text-muted);"></i></div>'}
+                    <div class="related-card-content">
+                        <h4>${article.title}</h4>
+                        <p>${article.description || 'Read more about this topic...'}</p>
+                    </div>
+                </a>
+            `).join('');
+            
+        } catch (err) {
+            console.error("Error loading related articles:", err);
+            document.getElementById('relatedGrid').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Unable to load related articles.</p>';
+        }
+    }
+
+    function fixImageUrl(url) {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        if (url.startsWith('//')) return 'https:' + url;
+        
+        let cleanUrl = url;
+        if (cleanUrl.startsWith('/')) {
+            cleanUrl = cleanUrl.substring(1);
+        }
+        return `https://raw.githubusercontent.com/${repo}/main/${cleanUrl}`;
+    }
+    
+    // ===============================
+    // NAVBAR & THEME FUNCTIONALITY
+    // ===============================
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+            navbar?.classList.add('scrolled');
+            backToTop?.classList.add('visible');
+        } else {
+            navbar?.classList.remove('scrolled');
+            backToTop?.classList.remove('visible');
+        }
+    });
+    
+    backToTop?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+    
+    hamburger?.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('active');
+        mobileOverlay.classList.toggle('active');
+    });
+    
+    mobileOverlay?.addEventListener('click', () => {
+        hamburger?.classList.remove('active');
+        navLinks?.classList.remove('active');
+        mobileOverlay.classList.remove('active');
+    });
+    
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    themeToggle?.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    });
+    
+    // Search overlay
+    const searchToggle = document.getElementById('searchToggle');
+    const searchOverlay = document.getElementById('searchOverlay');
+    
+    searchToggle?.addEventListener('click', () => {
+        searchOverlay.classList.add('active');
+        searchOverlay.querySelector('input')?.focus();
+    });
+    
+    searchOverlay?.addEventListener('click', (e) => {
+        if (e.target === searchOverlay) {
+            searchOverlay.classList.remove('active');
+        }
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        loadArticle();
+    });
+</script>
 </body>
 </html>
