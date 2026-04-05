@@ -14,4 +14,4 @@ views: 2
 ---
 
 
-![Web Dev]( "How to Become a Web Developer in 2026")
+![]()
