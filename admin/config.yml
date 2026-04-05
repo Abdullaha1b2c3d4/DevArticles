@@ -67,3 +67,4 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "Tag Name", name: "name", widget: "string" }
+      
