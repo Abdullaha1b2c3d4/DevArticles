@@ -26,7 +26,7 @@ The best part?
 
 In this guide, you’ll learn exactly how to become a web developer step-by-step, even if you’re a complete beginner.
 
-#  Step 1: Understand What Web Development Is
+# Step 1: Understand What Web Development Is
 
 Web development means creating websites and web applications.
 
@@ -60,7 +60,7 @@ Logic
 
 ![frontend vs backend](/assets/images/frontend-vs-backend-development-comparison.jpg "frontend vs backend")
 
-#  Step 2: Learn the Basic Skills
+# Step 2: Learn the Basic Skills
 
 Start with these 3 core technologies:
 
@@ -84,7 +84,7 @@ Used to make your website interactive
 
 ### Animations
 
-#  Step 3: Use Free Tools
+# Step 3: Use Free Tools
 
 You don’t need expensive software. Start with:
 
@@ -94,7 +94,7 @@ You don’t need expensive software. Start with:
 
 ### Free hosting (Netlify / GitHub Pages)
 
-> #  Step 4: Practice by Building Projects
+# Step 4: Practice by Building Projects
 
 This is where most beginners fail — they only watch tutorials.
 
@@ -106,7 +106,7 @@ Instead, build real projects:
 
 ### Landing page
 
-### Blog website 
+### Blog website
 
 ## 💡 Pro Tip:
 
@@ -114,7 +114,7 @@ Instead, build real projects:
 
 ### 👉 Experience = clients
 
-#  Step 5: Make Your Website Live
+# Step 5: Make Your Website Live
 
 Upload your website online so people can see it.
 
