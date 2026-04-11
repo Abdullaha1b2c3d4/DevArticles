@@ -12,7 +12,7 @@ readTime: 1h
 url: "#"
 views: 1
 ---
-# Introduction
+## Introduction
 
 Web development is one of the most in-demand skills in 2026. Whether you want to earn money online, freelance, or get a job, learning web development can completely change your life.
 
@@ -26,13 +26,13 @@ The best part?
 
 In this guide, you’ll learn exactly how to become a web developer step-by-step, even if you’re a complete beginner.
 
-# Step 1: Understand What Web Development Is
+## Step 1: Understand What Web Development Is
 
 Web development means creating websites and web applications.
 
 There are 3 main types:
 
-## 1️⃣ Frontend Development
+### 1️⃣ Frontend Development
 
 This is what users see:
 
@@ -44,7 +44,7 @@ Layout
 
 Colors
 
-## 2️⃣ Backend Development
+### 2️⃣ Backend Development
 
 This is behind the scenes:
 
@@ -54,74 +54,74 @@ Databases
 
 Logic
 
-## 3️⃣ Full Stack Development
+### 3️⃣ Full Stack Development
 
 👉 Combination of both frontend + backend
 
 ![frontend vs backend](/assets/images/frontend-vs-backend-development-comparison.jpg "frontend vs backend")
 
-# Step 2: Learn the Basic Skills
+## Step 2: Learn the Basic Skills
 
 Start with these 3 core technologies:
 
-## 🔹 HTML (Structure)
+### 🔹 HTML (Structure)
 
 Used to create the structure of a website
 
-## 🔹 CSS (Design)
+### 🔹 CSS (Design)
 
 Used to style your website (colors, layout, responsiveness)
 
-## 🔹 JavaScript (Functionality)
+### 🔹 JavaScript (Functionality)
 
 Used to make your website interactive
 
-## 👉 Example:
+### 👉 Example:
 
-### Button click
+Button click
 
-### Form validation
+Form validation
 
-### Animations
+Animations
 
-# Step 3: Use Free Tools
+## Step 3: Use Free Tools
 
-You don’t need expensive software. Start with:
+**You don’t need expensive software. Start with:**
 
-### Code Editor (like VS Code)
+Code Editor (like VS Code)
 
-### Browser (Chrome)
+Browser (Chrome)
 
-### Free hosting (Netlify / GitHub Pages)
+Free hosting (Netlify / GitHub Pages)
 
-# Step 4: Practice by Building Projects
+## Step 4: Practice by Building Projects
 
 This is where most beginners fail — they only watch tutorials.
 
 Instead, build real projects:
 
-## 🔥 Beginner Projects:
+### 🔥 Beginner Projects:
 
-### Personal portfolio website
+Personal portfolio website
 
-### Landing page
+Landing page
 
-### Blog website
+Blog website
 
-## 💡 Pro Tip:
+### 💡 Pro Tip:
 
-### 👉 Every project = experience
+👉 Every project = experience
 
-### 👉 Experience = clients
+👉 Experience = clients
 
-# Step 5: Make Your Website Live
+## Step 5: Make Your Website Live
 
 Upload your website online so people can see it.
 
 You can use free platforms like:
 
-### Netlify
+Netlify
 
-### GitHub Pages
+GitHub Pages
 
 👉 This makes you look professional and helps you get clients.
